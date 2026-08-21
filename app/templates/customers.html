@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Customers - PlayLine Admin{% endblock %}
+{% block content %}
+<h3 class="mb-4">Customers</h3>
+<div class="table-responsive">
+<table class="table table-striped bg-white">
+  <thead><tr><th>Name</th><th>WhatsApp Number</th><th>Joined</th></tr></thead>
+  <tbody>
+  {% for c in customers %}
+    <tr>
+      <td>{{ c.name or '-' }}</td>
+      <td>{{ c.phone }}</td>
+      <td>{{ c.created_at.strftime('%d %b %Y') }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+<p class="text-muted small">Full stats (total bookings, last booking) available via <code>/api/customers</code>.</p>
+{% endblock %}

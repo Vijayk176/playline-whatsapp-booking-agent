@@ -1,0 +1,22 @@
+body {
+  background: #f4f6f9;
+}
+.sidebar {
+  width: 220px;
+  min-width: 220px;
+}
+.nav-link.active {
+  background-color: #0d6efd;
+}
+.card {
+  border: none;
+  border-radius: 10px;
+}
+.login-body {
+  background: #212529;
+}
+table th {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  color: #6c757d;
+}

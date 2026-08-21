@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Gaming Options - PlayLine Admin{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h3>Gaming Options</h3>
+  <button class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#gameModal" onclick="openCreate()">+ Add Gaming Option</button>
+</div>
+<div class="table-responsive">
+<table class="table table-striped bg-white">
+  <thead><tr><th>Name</th><th>Description</th><th>Price/hour</th><th>Capacity</th><th>Active</th><th>Actions</th></tr></thead>
+  <tbody>
+  {% for g in games %}
+    <tr>
+      <td>{{ g.name }}</td>
+      <td>{{ g.description }}</td>
+      <td>Rs. {{ "%.0f"|format(g.price_per_hour) }}</td>
+      <td>{{ g.capacity }}</td>
+      <td>{% if g.active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-secondary">Inactive</span>{% endif %}</td>
+      <td>
+        <button class="btn btn-sm btn-outline-primary" onclick='openEdit({{ {"id": g.id, "name": g.name, "description": g.description, "price_per_hour": g.price_per_hour, "capacity": g.capacity, "active": g.active} | tojson }})'>Edit</button>
+        <button class="btn btn-sm btn-outline-danger" onclick="deactivateGame({{ g.id }})">Deactivate</button>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+
+<div class="modal fade" id="gameModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title" id="gameModalTitle">Add Gaming Option</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <input type="hidden" id="gameId">
+        <div class="mb-2"><label class="form-label">Name</label><input class="form-control" id="gameName"></div>
+        <div class="mb-2"><label class="form-label">Description</label><textarea class="form-control" id="gameDescription"></textarea></div>
+        <div class="mb-2"><label class="form-label">Price per hour (Rs.)</label><input type="number" class="form-control" id="gamePrice"></div>
+        <div class="mb-2"><label class="form-label">Capacity</label><input type="number" class="form-control" id="gameCapacity" value="1"></div>
+        <div class="form-check"><input class="form-check-input" type="checkbox" id="gameActive" checked><label class="form-check-label">Active</label></div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-dark" onclick="saveGame()">Save</button></div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+function openCreate() {
+  document.getElementById('gameModalTitle').innerText = 'Add Gaming Option';
+  document.getElementById('gameId').value = '';
+  document.getElementById('gameName').value = '';
+  document.getElementById('gameDescription').value = '';
+  document.getElementById('gamePrice').value = '';
+  document.getElementById('gameCapacity').value = 1;
+  document.getElementById('gameActive').checked = true;
+}
+function openEdit(g) {
+  document.getElementById('gameModalTitle').innerText = 'Edit Gaming Option';
+  document.getElementById('gameId').value = g.id;
+  document.getElementById('gameName').value = g.name;
+  document.getElementById('gameDescription').value = g.description;
+  document.getElementById('gamePrice').value = g.price_per_hour;
+  document.getElementById('gameCapacity').value = g.capacity;
+  document.getElementById('gameActive').checked = g.active;
+  new bootstrap.Modal(document.getElementById('gameModal')).show();
+}
+async function saveGame() {
+  const id = document.getElementById('gameId').value;
+  const payload = {
+    name: document.getElementById('gameName').value,
+    description: document.getElementById('gameDescription').value,
+    price_per_hour: parseFloat(document.getElementById('gamePrice').value),
+    capacity: parseInt(document.getElementById('gameCapacity').value),
+    active: document.getElementById('gameActive').checked
+  };
+  const url = id ? `/api/games/${id}` : '/api/games';
+  const method = id ? 'PUT' : 'POST';
+  const res = await fetch(url, {method, headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)});
+  if (res.ok) location.reload(); else alert('Failed to save');
+}
+async function deactivateGame(id) {
+  if (!confirm('Deactivate this gaming option?')) return;
+  const res = await fetch(`/api/games/${id}`, {method: 'DELETE'});
+  if (res.ok) location.reload(); else alert('Failed');
+}
+</script>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Settings - PlayLine Admin{% endblock %}
+{% block content %}
+<h3 class="mb-4">Business Settings</h3>
+<div class="card p-4" style="max-width: 700px;">
+<form id="settingsForm">
+  <div class="mb-3"><label class="form-label">Business Name</label><input class="form-control" id="business_name" value="{{ biz.business_name }}"></div>
+  <div class="mb-3"><label class="form-label">Address</label><input class="form-control" id="address" value="{{ biz.address }}"></div>
+  <div class="mb-3"><label class="form-label">Phone</label><input class="form-control" id="phone" value="{{ biz.phone }}"></div>
+  <div class="mb-3"><label class="form-label">WhatsApp Number</label><input class="form-control" id="whatsapp_number" value="{{ biz.whatsapp_number }}"></div>
+  <div class="row">
+    <div class="col mb-3"><label class="form-label">Opening Time</label><input type="time" class="form-control" id="opening_time" value="{{ biz.opening_time.strftime('%H:%M') }}"></div>
+    <div class="col mb-3"><label class="form-label">Closing Time</label><input type="time" class="form-control" id="closing_time" value="{{ biz.closing_time.strftime('%H:%M') }}"></div>
+  </div>
+  <div class="mb-3"><label class="form-label">Weekly Closed Day</label>
+    <select class="form-select" id="weekly_closed_day">
+      {% for day in ['None','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'] %}
+      <option value="{{ day }}" {% if biz.weekly_closed_day == day %}selected{% endif %}>{{ day }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="mb-3"><label class="form-label">Google Maps Link</label><input class="form-control" id="google_maps_link" value="{{ biz.google_maps_link }}"></div>
+  <div class="mb-3"><label class="form-label">Instagram Link</label><input class="form-control" id="instagram_link" value="{{ biz.instagram_link }}"></div>
+  <div class="mb-3"><label class="form-label">Facebook Link</label><input class="form-control" id="facebook_link" value="{{ biz.facebook_link }}"></div>
+  <div class="mb-3"><label class="form-label">Description</label><textarea class="form-control" id="general_description">{{ biz.general_description }}</textarea></div>
+  <div class="mb-3"><label class="form-label">AI Greeting</label><textarea class="form-control" id="ai_greeting">{{ biz.ai_greeting }}</textarea></div>
+  <div class="mb-3"><label class="form-label">AI Instructions</label><textarea class="form-control" id="ai_instructions">{{ biz.ai_instructions }}</textarea></div>
+  <button type="button" class="btn btn-dark" onclick="saveSettings()">Save Settings</button>
+</form>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+async function saveSettings() {
+  const payload = {
+    business_name: document.getElementById('business_name').value,
+    address: document.getElementById('address').value,
+    phone: document.getElementById('phone').value,
+    whatsapp_number: document.getElementById('whatsapp_number').value,
+    opening_time: document.getElementById('opening_time').value,
+    closing_time: document.getElementById('closing_time').value,
+    weekly_closed_day: document.getElementById('weekly_closed_day').value,
+    google_maps_link: document.getElementById('google_maps_link').value,
+    instagram_link: document.getElementById('instagram_link').value,
+    facebook_link: document.getElementById('facebook_link').value,
+    general_description: document.getElementById('general_description').value,
+    ai_greeting: document.getElementById('ai_greeting').value,
+    ai_instructions: document.getElementById('ai_instructions').value,
+  };
+  const res = await fetch('/api/settings', {method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)});
+  if (res.ok) alert('Settings saved'); else alert('Failed to save settings');
+}
+</script>
+{% endblock %}

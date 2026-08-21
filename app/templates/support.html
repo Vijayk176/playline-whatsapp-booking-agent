@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Support - PlayLine Admin{% endblock %}
+{% block content %}
+<h3 class="mb-4">Support Requests</h3>
+<div class="table-responsive">
+<table class="table table-striped bg-white">
+  <thead><tr><th>Customer</th><th>Phone</th><th>Message</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+  <tbody>
+  {% for r in requests %}
+    <tr>
+      <td>{{ r.customer_name or '-' }}</td>
+      <td>{{ r.customer_phone }}</td>
+      <td>{{ r.message }}</td>
+      <td>{{ r.created_at.strftime('%d %b %Y %H:%M') }}</td>
+      <td><span class="badge {% if r.status.value == 'open' %}bg-danger{% elif r.status.value == 'assigned' %}bg-warning{% else %}bg-success{% endif %}">{{ r.status.value }}</span></td>
+      <td>
+        <select class="form-select form-select-sm" style="width:auto;display:inline-block" onchange="updateSupport({{ r.id }}, this.value)">
+          <option value="open" {% if r.status.value == 'open' %}selected{% endif %}>Open</option>
+          <option value="assigned" {% if r.status.value == 'assigned' %}selected{% endif %}>Assigned</option>
+          <option value="resolved" {% if r.status.value == 'resolved' %}selected{% endif %}>Resolved</option>
+        </select>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+async function updateSupport(id, status) {
+  const res = await fetch(`/api/support/${id}`, {method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({status})});
+  if (!res.ok) alert('Failed to update');
+}
+</script>
+{% endblock %}

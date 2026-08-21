@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Bookings - PlayLine Admin{% endblock %}
+{% block content %}
+<h3 class="mb-4">Bookings</h3>
+<div class="table-responsive">
+<table class="table table-striped table-hover bg-white">
+  <thead><tr>
+    <th>Ref</th><th>Customer</th><th>Phone</th><th>Game</th><th>Date</th><th>Time</th><th>Duration</th><th>Price</th><th>Status</th><th>Payment</th><th>Actions</th>
+  </tr></thead>
+  <tbody>
+  {% for b in bookings %}
+    <tr>
+      <td>{{ b.booking_ref }}</td>
+      <td>{{ b.customer_name }}</td>
+      <td>{{ b.phone }}</td>
+      <td>{{ b.gaming_option.name }}</td>
+      <td>{{ b.booking_date }}</td>
+      <td>{{ b.start_time.strftime('%I:%M %p') }} - {{ b.end_time.strftime('%I:%M %p') }}</td>
+      <td>{{ b.duration_hours }}h</td>
+      <td>Rs. {{ "%.0f"|format(b.price) }}</td>
+      <td><span class="badge bg-secondary status-badge" data-id="{{ b.id }}">{{ b.status.value }}</span></td>
+      <td><span class="badge bg-light text-dark payment-badge" data-id="{{ b.id }}">{{ b.payment_status.value }}</span></td>
+      <td>
+        <div class="btn-group btn-group-sm">
+          <button class="btn btn-outline-success" onclick="updateStatus({{ b.id }}, 'confirmed')">Confirm</button>
+          <button class="btn btn-outline-danger" onclick="updateStatus({{ b.id }}, 'cancelled')">Cancel</button>
+          <button class="btn btn-outline-primary" onclick="updateStatus({{ b.id }}, 'completed')">Complete</button>
+          <button class="btn btn-outline-secondary" onclick="updateStatus({{ b.id }}, 'no_show')">No-show</button>
+        </div>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+async function updateStatus(id, status) {
+  const res = await fetch(`/api/bookings/${id}`, {
+    method: 'PUT',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({status})
+  });
+  if (res.ok) location.reload();
+  else alert('Failed to update booking');
+}
+</script>
+{% endblock %}
