@@ -1,7 +1,6 @@
 # PlayLine — WhatsApp AI Booking Agent for Gaming Zones
 
-A production-ready, white-label WhatsApp AI booking assistant for gaming lounges/zones. Customers message a gaming zone's WhatsApp Business number to check prices, check availability, book/cancel/reschedule gaming sessions, and get business info — all in English, Urdu, or Roman Urdu.
-
+A production-ready WhatsApp AI booking assistant. Customers message your WhatsApp Business number to check prices, check availability, book/cancel/reschedule gaming sessions, and get business info — all in English, Urdu, or Roman Urdu.
 
 ## Architecture
 
@@ -196,7 +195,7 @@ git push -u origin main
 - All booking validation happens server-side; the AI cannot bypass business rules.
 - Webhook GET requests are verified against `WHATSAPP_VERIFY_TOKEN`.
 - Rate limiting middleware protects against basic API abuse.
-- Never commit `.env` or API keys — the `.gitignore` already covers this.
+
 
 ## 10. Troubleshooting
 
