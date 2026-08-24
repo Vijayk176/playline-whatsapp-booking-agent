@@ -80,6 +80,7 @@ class BusinessSettingIn(BaseModel):
     address: str
     phone: str
     whatsapp_number: str
+    owner_notification_phone: str = ""
     opening_time: time
     closing_time: time
     weekly_closed_day: str = "None"

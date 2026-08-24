@@ -8,6 +8,11 @@
   <div class="mb-3"><label class="form-label">Address</label><input class="form-control" id="address" value="{{ biz.address }}"></div>
   <div class="mb-3"><label class="form-label">Phone</label><input class="form-control" id="phone" value="{{ biz.phone }}"></div>
   <div class="mb-3"><label class="form-label">WhatsApp Number</label><input class="form-control" id="whatsapp_number" value="{{ biz.whatsapp_number }}"></div>
+  <div class="mb-3">
+    <label class="form-label">Owner Notification Number</label>
+    <input class="form-control" id="owner_notification_phone" value="{{ biz.owner_notification_phone or '' }}" placeholder="e.g. 923001234567">
+    <div class="form-text">When a customer needs a human (or is escalated), we'll instantly WhatsApp this number so it's never missed. Use the full number with country code, no + or spaces.</div>
+  </div>
   <div class="row">
     <div class="col mb-3"><label class="form-label">Opening Time</label><input type="time" class="form-control" id="opening_time" value="{{ biz.opening_time.strftime('%H:%M') }}"></div>
     <div class="col mb-3"><label class="form-label">Closing Time</label><input type="time" class="form-control" id="closing_time" value="{{ biz.closing_time.strftime('%H:%M') }}"></div>
@@ -37,6 +42,7 @@ async function saveSettings() {
     address: document.getElementById('address').value,
     phone: document.getElementById('phone').value,
     whatsapp_number: document.getElementById('whatsapp_number').value,
+    owner_notification_phone: document.getElementById('owner_notification_phone').value,
     opening_time: document.getElementById('opening_time').value,
     closing_time: document.getElementById('closing_time').value,
     weekly_closed_day: document.getElementById('weekly_closed_day').value,

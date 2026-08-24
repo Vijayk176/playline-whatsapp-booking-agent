@@ -14,6 +14,33 @@ def _headers():
     }
 
 
+def send_message_sync(to: str, text: str) -> bool:
+    """Synchronous variant of send_message, for use inside sync tool-call code paths
+    (e.g. paging the owner immediately on human handoff). Best-effort: logs and
+    swallows failures so a notification issue never breaks the customer's conversation."""
+    if not settings.whatsapp_token or not settings.whatsapp_phone_number_id:
+        logger.warning("WhatsApp credentials not configured; owner notification not sent.")
+        return False
+
+    url = f"{GRAPH_URL}/{settings.whatsapp_phone_number_id}/messages"
+    payload = {
+        "messaging_product": "whatsapp",
+        "to": to,
+        "type": "text",
+        "text": {"body": text, "preview_url": False},
+    }
+    try:
+        with httpx.Client(timeout=10) as client:
+            resp = client.post(url, headers=_headers(), json=payload)
+            if resp.status_code >= 400:
+                logger.error("Owner notification send failed: %s %s", resp.status_code, resp.text)
+                return False
+            return True
+    except httpx.HTTPError as exc:
+        logger.error("Owner notification send exception: %s", exc)
+        return False
+
+
 async def send_message(to: str, text: str) -> bool:
     """Send a plain text WhatsApp message. Returns True on success."""
     if not settings.whatsapp_token or not settings.whatsapp_phone_number_id:

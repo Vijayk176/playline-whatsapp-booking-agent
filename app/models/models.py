@@ -119,6 +119,7 @@ class BusinessSetting(Base):
     address = Column(String(255), default="SAMPLE ADDRESS - replace with your real address")
     phone = Column(String(32), default="0300-0000000 (SAMPLE)")
     whatsapp_number = Column(String(32), default="0300-0000000 (SAMPLE)")
+    owner_notification_phone = Column(String(32), default="")
     opening_time = Column(Time, default=time(12, 0))
     closing_time = Column(Time, default=time(23, 59))
     weekly_closed_day = Column(String(16), default="None")

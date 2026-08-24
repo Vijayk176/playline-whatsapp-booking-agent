@@ -1,7 +1,10 @@
 import json
+import logging
 from datetime import datetime, date, time
 from sqlalchemy.orm import Session
 from app.services import booking_service as bs
+
+logger = logging.getLogger("tools")
 
 TOOL_DEFINITIONS = [
     {
@@ -226,8 +229,28 @@ class ToolExecutor:
 
     def _handoff_to_human(self, reason):
         from app.models.models import SupportRequest
+        from app.services.whatsapp import send_message_sync
+
         customer = bs.get_or_create_customer(self.db, self.phone)
         req = SupportRequest(customer_phone=self.phone, customer_name=customer.name or "", message=reason)
         self.db.add(req)
         self.db.commit()
-        return {"success": True, "message": "A staff member will contact you shortly."}
+
+        biz = bs.get_or_create_business_settings(self.db)
+        notified = False
+        if biz.owner_notification_phone:
+            display_name = customer.name or self.phone
+            alert_text = (
+                f"🔔 PlayLine handoff request\n\n"
+                f"Customer: {display_name}\n"
+                f"Phone: {self.phone}\n"
+                f"Reason: {reason}\n\n"
+                f"Reply to them directly on WhatsApp, or open /admin/support."
+            )
+            notified = send_message_sync(biz.owner_notification_phone, alert_text)
+            if not notified:
+                logger.warning("Owner notification failed to send for support request id=%s", req.id)
+        else:
+            logger.info("owner_notification_phone not configured; handoff only recorded in dashboard (id=%s)", req.id)
+
+        return {"success": True, "message": "A staff member will contact you shortly.", "owner_notified": notified}

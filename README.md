@@ -2,6 +2,7 @@
 
 A production-ready, white-label WhatsApp AI booking assistant for gaming lounges/zones. Customers message a gaming zone's WhatsApp Business number to check prices, check availability, book/cancel/reschedule gaming sessions, and get business info — all in English, Urdu, or Roman Urdu.
 
+**This is a multi-client product, not a one-off build.** Every business-specific detail — name, address, hours, gaming options, prices, social links, AI greeting — lives in the database and is edited per-client through the `/admin/settings` and `/admin/games` pages. The codebase itself has no hardcoded business identity, so the same deployment (or a fresh clone) can be rebranded for a new gaming zone client in minutes, no code changes required.
 
 ## Architecture
 
@@ -36,6 +37,7 @@ SQLite/PostgreSQL Database
 - Keyword-based fallback mode if the AI API fails or has no key configured
 - Roman Urdu / Urdu / English understanding (AI mode) + basic Roman Urdu keywords (fallback mode)
 - Deterministic overlap detection and business-hours validation
+- Human handoff creates a support-desk ticket **and** instantly pages the venue owner/staff over WhatsApp (configurable number in Settings), so requests aren't only visible if someone happens to have the dashboard open
 - Admin dashboard (Bootstrap 5): stats, bookings, gaming options, customers, support requests, settings
 - JWT-cookie admin authentication, bcrypt password hashing
 - SQLite for local dev, structured to swap in PostgreSQL for production
@@ -118,6 +120,8 @@ The app runs at `http://localhost:8000`.
 | `WHATSAPP_BUSINESS_ACCOUNT_ID` | From Meta Business Manager |
 | `ADMIN_USERNAME` / `ADMIN_PASSWORD` | Seeded as the first admin login |
 | `TIMEZONE` | Defaults to `Asia/Karachi` |
+
+**Owner notification number** is not set via `.env` — configure it per-client at `/admin/settings` → "Owner Notification Number". Whenever the AI escalates to a human (customer asks for staff, or is frustrated/stuck), that number gets an instant WhatsApp alert with the customer's number and the reason, in addition to the request appearing on `/admin/support`.
 
 Never commit `.env` — it's already in `.gitignore`.
 
@@ -229,4 +233,20 @@ git push -u origin main
 - [ ] GitHub configured (run the commands in section 8)
 - [ ] Deployment ready (follow section 7 once you choose a host)
 
+## WHAT TO CHANGE FOR EACH NEW GAMING ZONE CLIENT
 
+Everything below is currently a clearly-labeled **SAMPLE** value. Replace via the `/admin/settings` and `/admin/games` pages — no code changes needed per client:
+
+- Business name and real address
+- Real phone number
+- Real WhatsApp Business number
+- `WHATSAPP_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_VERIFY_TOKEN`, `WHATSAPP_BUSINESS_ACCOUNT_ID` (unique per client, from that client's Meta app)
+- Actual gaming options offered (names may differ from the sample PS5/PS4/PC/Xbox/Racing Simulator list)
+- Actual prices per hour for each gaming option
+- Real opening/closing hours and weekly closed day (if any)
+- Real Google Maps link
+- Real Instagram/Facebook links
+- `GROQ_API_KEY` (can be shared across clients, or one per client for cost tracking)
+- `ADMIN_USERNAME` / `ADMIN_PASSWORD` (unique per client deployment; change from defaults before going live)
+
+**Multi-client note:** the simplest path to running this for multiple gaming zones is one deployment (app + database) per client, each with its own `.env` and its own WhatsApp number/token. The code is identical across all of them — only the `.env` and the data entered via the admin dashboard differ.
